@@ -26,8 +26,6 @@ case "$1" in
 
     purge)
         echo "Removing rc.d links..."
-        update-rc.d snf-dispatcher remove
-
         conf_files=$(dpkg-query -W -f='${Conffiles}' $PKGNAME | awk '{print $1'})
         for f in $conf_files; do
           dpkg-statoverride --remove $f || test $? -eq 2
