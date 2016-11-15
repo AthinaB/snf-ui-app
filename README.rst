@@ -48,18 +48,34 @@ To create a `devflow` package go to the root of the project repo and run::
 
 Development
 ===========
+To develop in this frontend application we suggest to install [Synnefo](https://github.com/grnet/synnefo/). Then you need to modify the appropriate settings to serve the static files that you've worked on. To do this, follow these steps:
 
-* Install Synnefo
-* Let django serve the static files of the synnefo components::
+* Install [Synnefo](https://github.com/grnet/synnefo/) as the [developer guide](https://github.com/grnet/synnefo/blob/develop/docs/dev-guide.rst) describes. If you use the recommended installation method (snf-ci) the code of snf-ui-app will be installed by default in the path: `/var/tmp/snf-ui-app`
 
-    $ vim /etc/synnefo/99-local.conf
-    WEBPROJECT_SERVE_STATIC = True
-
-* Remove static file sharing from apache configuration. Comment out any static
-  files related configuration directive in
-  `/etc/apache2/sites-available/synnefo-ssl`
-
-* Build ember project with explicit output location::
-
-  $ cd snf-ui
+* Install snf-ui-app package in development mode:
+```
+  $ cd <installation_path>/snf-ui-app/
+  $ python setup.py develop -N
+```
+* Let django serve the static files of the Synnefo components. This could be accomplished by adding in the file `/etc/synnefo/99-local.conf` the following line:
+```
+WEBPROJECT_SERVE_STATIC = True
+```
+Since this is a setting, you need to restart gunicorn:
+```
+$ service gunicorn restart
+```
+* Remove static file sharing settings from apache configuration. When you use `snf-ci`, by default, the settings that you can remove are placed in the file: `/etc/apache2/sites-available/synnefo-ssl`. There, comment out the lines:
+```
+Alias /static "/usr/share/synnefo/static"
+ProxyPass        /static !
+```
+Then restart apache:
+```
+  $ /etc/init.d/apache2 restart
+```
+* Build ember project with explicit output location:
+```
+  $ cd <installation_path>/snf-ui-app/snf-ui
   $ ember build --watch --output-path ../synnefo_ui/static/snf-ui
+```
