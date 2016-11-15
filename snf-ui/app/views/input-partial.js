@@ -21,9 +21,9 @@ export default Ember.View.extend({
   errorMsg: undefined,
   warningVisible: false,
   warningMsg: undefined,
-
+  invalidChars: [':', '-', '_'],
   /*
-  * Errors: empty, already exists, has colon, has hypnen
+  * Errors: empty, already exists, has invalid character
   * Warnings: too large
   */
 
@@ -114,7 +114,6 @@ export default Ember.View.extend({
     }
   }.property(),
 
-
   isUnique: function() {
     var self = this;
     return function() {
@@ -129,38 +128,16 @@ export default Ember.View.extend({
     };
   }.property(),
 
-  checkHyphen: function() {
+  checkInvalidChars: function() {
     var self = this;
     return function() {
       if(!self.get('errorVisible')) {
-        var hasHyphen = self.get('value').indexOf('-') !== -1;
-        if(hasHyphen) {
-          self.send('showInfo', 'hasHyphen', true);
-        }
-      }
-    };
-  }.property(),
-
-
-  checkUnderscore: function() {
-    var self = this;
-    return function() {
-      if(!self.get('errorVisible')) {
-        var hasUnderscore = self.get('value').indexOf('_') !== -1;
-        if(hasUnderscore) {
-          self.send('showInfo', 'hasUnderscore', true);
-        }
-      }
-    };
-  }.property(),
-
-  checkColon: function() {
-    var self = this;
-    return function() {
-      if(!self.get('errorVisible')) {
-        var hasColon = self.get('value').indexOf(':') !== -1;
-        if(hasColon) {
-          self.send('showInfo', 'hasColon', true);
+        var invalidChars = self.get('invalidChars');
+        var invalidChar =_.find(invalidChars, (char) => {
+              return (self.get('value').indexOf(char) !== -1) ? char : false;
+            });
+        if(invalidChar) {
+          self.send('showInfo', 'invalidChar', true, invalidChar);
         }
       }
     };
@@ -201,9 +178,7 @@ export default Ember.View.extend({
         self.get('controller').set('notEmptyName', true);
         Ember.run.debounce(self, function() {
           self.send('hideInfo', true);
-          self.get('checkHyphen')();
-          self.get('checkUnderscore')();
-          self.get('checkColon')();
+          self.get('checkInvalidChars')();
           self.get('toLowerCase')();
           self.get('manipulateSize')();
           self.get('isUnique')();
@@ -243,13 +218,10 @@ export default Ember.View.extend({
 
   actions: {
 
-    showInfo: function(type, isError) {
-
-      /*
+    showInfo: function(type, isError, invalidChar) {
+     /*
       * type can take the values:
-      *  - hasHyphen
-      *  - hasUnderscore
-      *  - hasColon
+      *  - invalidChar
       *  - isEmpty
       *  - isLarge
       *  - notUnique
@@ -257,9 +229,7 @@ export default Ember.View.extend({
 
       //  TEMP
       var message = {
-        hasHyphen: '"-" is not allowed',
-        hasUnderscore: '"_" is not allowed',
-        hasColon: '":" is not allowed',
+        invalidChar: `"${invalidChar}" is not allowed!!!`,
         isEmpty: 'This can\'t be empty.',
         isLarge: 'The name of the group must be at the most ' + this.get('controller').get('nameMaxLength') + ' (encoded) characters',
         notUnique: 'Already exists'
