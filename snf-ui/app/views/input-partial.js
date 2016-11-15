@@ -141,12 +141,25 @@ export default Ember.View.extend({
     };
   }.property(),
 
+
+  checkUnderscore: function() {
+    var self = this;
+    return function() {
+      if(!self.get('errorVisible')) {
+        var hasUnderscore = self.get('value').indexOf('_') !== -1;
+        if(hasUnderscore) {
+          self.send('showInfo', 'hasUnderscore', true);
+        }
+      }
+    };
+  }.property(),
+
   checkColon: function() {
     var self = this;
     return function() {
       if(!self.get('errorVisible')) {
-        var hasHyphen = self.get('value').indexOf(':') !== -1;
-        if(hasHyphen) {
+        var hasColon = self.get('value').indexOf(':') !== -1;
+        if(hasColon) {
           self.send('showInfo', 'hasColon', true);
         }
       }
@@ -189,6 +202,7 @@ export default Ember.View.extend({
         Ember.run.debounce(self, function() {
           self.send('hideInfo', true);
           self.get('checkHyphen')();
+          self.get('checkUnderscore')();
           self.get('checkColon')();
           self.get('toLowerCase')();
           self.get('manipulateSize')();
@@ -234,6 +248,7 @@ export default Ember.View.extend({
       /*
       * type can take the values:
       *  - hasHyphen
+      *  - hasUnderscore
       *  - hasColon
       *  - isEmpty
       *  - isLarge
@@ -243,6 +258,7 @@ export default Ember.View.extend({
       //  TEMP
       var message = {
         hasHyphen: '"-" is not allowed',
+        hasUnderscore: '"_" is not allowed',
         hasColon: '":" is not allowed',
         isEmpty: 'This can\'t be empty.',
         isLarge: 'The name of the group must be at the most ' + this.get('controller').get('nameMaxLength') + ' (encoded) characters',
