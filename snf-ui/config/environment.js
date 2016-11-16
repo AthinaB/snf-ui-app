@@ -44,6 +44,11 @@ module.exports = function(environment) {
     ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
     ENV.APP.LOG_VIEW_LOOKUPS = true;
     ENV.APP.emberDevTools = {global: true};
+    /*
+     * The ENV.APP.NO_ERROR_DIALOGS  is used to prevent the error handling
+     * functions that diplay a dialog.
+    */
+    ENV.APP.NO_ERROR_DIALOGS = true;
   }
 
   if (subEnvironment === 'nw') {

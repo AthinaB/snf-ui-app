@@ -1,38 +1,42 @@
 import Ember from 'ember';
+import config from 'snf-ui/config/environment';
 
 export default Ember.Mixin.create({
   errors: undefined,
   errorDialogRendered: false,
   errorBoxRendered: false,
   init: function() {
-    var self = this;
-    this.set('errors', []);
+    var handleErrors = !config.APP.NO_ERROR_DIALOGS;
+    if(handleErrors) {
+      var self = this;
+      this.set('errors', []);
 
-    // Catches js errors
-    Ember.onerror = function(error) {
-      console.error(error);
-      if(error.stack) {
-        if(!error.stack.includes('RSVP') && !error.stack.includes('ajaxError')) {
+      // Catches js errors
+      Ember.onerror = function(error) {
+        console.error(error);
+        if(error.stack) {
+          if(!error.stack.includes('RSVP') && !error.stack.includes('ajaxError')) {
+            self.send('showErrorDialog', error);
+          }
+        }
+        else {
           self.send('showErrorDialog', error);
         }
-      }
-      else {
-        self.send('showErrorDialog', error);
-      }
-    };
+      };
 
-    Ember.RSVP.on('error', function(error) {
-      console.error(error);
-      if(error.status == 0) {
-        self.send('showErrorBox');
-      }
-      else if (error.errorThrown) {
-        self.send('showErrorDialog', error.errorThrown);
-      }
-      else {
-        self.send('showErrorDialog', error);
-      }
-    });
+      Ember.RSVP.on('error', function(error) {
+        console.error(error);
+        if(error.status == 0) {
+          self.send('showErrorBox');
+        }
+        else if (error.errorThrown) {
+          self.send('showErrorDialog', error.errorThrown);
+        }
+        else {
+          self.send('showErrorDialog', error);
+        }
+      });
+    }
   },
 
 
