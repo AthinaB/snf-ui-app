@@ -21,7 +21,7 @@ export default Ember.View.extend({
   errorMsg: undefined,
   warningVisible: false,
   warningMsg: undefined,
-  invalidChars: [':', '-', '_'],
+  invalidChars: [':', '-', '_', '(', ')'],
   /*
   * Errors: empty, already exists, has invalid character
   * Warnings: too large
